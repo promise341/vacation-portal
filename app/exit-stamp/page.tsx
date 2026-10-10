@@ -19,7 +19,8 @@ export default function ExitStamp() {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState(null); // 'success', 'error', null
+  const [submitStatus, setSubmitStatus] = useState<string | null>(null); // 'success', 'error', null
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
