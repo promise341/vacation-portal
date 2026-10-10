@@ -1,14 +1,23 @@
-import { Resend } from 'resend';
 import { NextResponse } from 'next/server';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Email validation regex
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+export async function GET() {
+  return NextResponse.json({
+    message: 'Contact API is working',
+    timestamp: new Date().toISOString(),
+    hasResendKey: !!process.env.RESEND_API_KEY
+  });
+}
+
 export async function POST(request) {
   try {
+    console.log('API route called');
+    
     const body = await request.json();
+    console.log('Received body:', body);
+    
     const { 
       name, 
       email, 
@@ -22,6 +31,7 @@ export async function POST(request) {
 
     // Check honeypot field - if filled, it's likely a bot
     if (honeypot && honeypot.trim() !== '') {
+      console.log('Honeypot detected');
       return NextResponse.json(
         { error: 'Spam detected' },
         { status: 400 }
@@ -49,9 +59,33 @@ export async function POST(request) {
 
     // Return validation errors
     if (errors.length > 0) {
+      console.log('Validation errors:', errors);
       return NextResponse.json(
         { error: 'Validation failed', details: errors },
         { status: 400 }
+      );
+    }
+
+    // Check if Resend is available
+    let resend;
+    try {
+      const { Resend } = await import('resend');
+      resend = new Resend(process.env.RESEND_API_KEY);
+      console.log('Resend initialized successfully');
+    } catch (importError) {
+      console.error('Failed to import Resend:', importError);
+      return NextResponse.json(
+        { error: 'Email service not available. Please try again later.' },
+        { status: 500 }
+      );
+    }
+
+    // Check API key
+    if (!process.env.RESEND_API_KEY) {
+      console.error('RESEND_API_KEY not found in environment variables');
+      return NextResponse.json(
+        { error: 'Email service configuration error' },
+        { status: 500 }
       );
     }
 
@@ -78,34 +112,44 @@ export async function POST(request) {
     `;
 
     // Send email using Resend
-    const { data, error } = await resend.emails.send({
-      from: 'onboarding@resend.dev',
-      to: 'promiseakerele341@gmail.com',
-      replyTo: email,
-      subject: emailSubject,
-      html: emailContent,
-    });
+    try {
+      const { data, error } = await resend.emails.send({
+        from: 'onboarding@resend.dev',
+        to: 'promiseakerele341@gmail.com',
+        replyTo: email,
+        subject: emailSubject,
+        html: emailContent,
+      });
 
-    if (error) {
-      console.error('Resend error:', error);
+      if (error) {
+        console.error('Resend error:', error);
+        return NextResponse.json(
+          { error: 'Failed to send email. Please try again later.', details: error },
+          { status: 500 }
+        );
+      }
+
+      console.log('Email sent successfully:', data);
+      
       return NextResponse.json(
-        { error: 'Failed to send email. Please try again later.' },
+        { 
+          message: 'Email sent successfully',
+          id: data?.id 
+        },
+        { status: 200 }
+      );
+    } catch (emailError) {
+      console.error('Email sending error:', emailError);
+      return NextResponse.json(
+        { error: 'Failed to send email. Please try again later.', details: emailError.message },
         { status: 500 }
       );
     }
 
-    return NextResponse.json(
-      { 
-        message: 'Email sent successfully',
-        id: data?.id 
-      },
-      { status: 200 }
-    );
-
   } catch (error) {
     console.error('Contact form error:', error);
     return NextResponse.json(
-      { error: 'Internal server error. Please try again later.' },
+      { error: 'Internal server error. Please try again later.', details: error.message },
       { status: 500 }
     );
   }

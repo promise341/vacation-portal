@@ -78,7 +78,16 @@ ${formData.additionalMessage}
         body: JSON.stringify(emailData),
       });
 
-      const result = await response.json();
+      let result;
+      try {
+        result = await response.json();
+      } catch (jsonError) {
+        console.error('Failed to parse JSON response:', jsonError);
+        result = { error: 'Invalid response format' };
+      }
+
+      console.log('Response status:', response.status);
+      console.log('Response result:', result);
 
       if (response.ok) {
         setSubmitStatus('success');
