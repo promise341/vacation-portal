@@ -22,6 +22,7 @@ export default function Apply() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null); // 'success', 'error', null
+  const [validationErrors, setValidationErrors] = useState([]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -35,6 +36,19 @@ export default function Apply() {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus(null);
+    setValidationErrors([]);
+
+    // Client-side validation
+    const errors = [];
+    if (!formData.firstName.trim()) errors.push('First name is required');
+    if (!formData.lastName.trim()) errors.push('Last name is required');
+    if (!formData.emailAddress.trim()) errors.push('Email address is required');
+    
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       // Prepare email content
@@ -110,10 +124,14 @@ ${formData.additionalMessage}
         });
       } else {
         setSubmitStatus('error');
+        if (result.details) {
+          setValidationErrors(Array.isArray(result.details) ? result.details : [result.error]);
+        }
         console.error('Submission error:', result);
       }
     } catch (error) {
       setSubmitStatus('error');
+      setValidationErrors(['Network error. Please check your connection and try again.']);
       console.error('Network error:', error);
     } finally {
       setIsSubmitting(false);
@@ -145,6 +163,23 @@ ${formData.additionalMessage}
               </div>
             </div>
           </div>
+
+          {/* Validation Errors */}
+          {validationErrors.length > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-8">
+              <div className="flex items-start gap-3">
+                <div className="text-red-600">✗</div>
+                <div>
+                  <div className="text-sm font-bold text-red-800">Please fix the following errors:</div>
+                  <ul className="text-xs text-red-700 mt-2 ml-4 list-disc">
+                    {validationErrors.map((error, index) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Status Messages */}
           {submitStatus === 'success' && (
@@ -195,7 +230,7 @@ ${formData.additionalMessage}
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
                   <label className="block text-sm font-medium text-[#071b3a] mb-2">
-                    First Name
+                    First Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -203,12 +238,13 @@ ${formData.additionalMessage}
                     value={formData.firstName}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    required
                   />
                 </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-[#071b3a] mb-2">
-                    Last Name
+                    Last Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -216,12 +252,13 @@ ${formData.additionalMessage}
                     value={formData.lastName}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    required
                   />
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-[#071b3a] mb-2">
-                    Email Address
+                    Email Address <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="email"
@@ -229,6 +266,7 @@ ${formData.additionalMessage}
                     value={formData.emailAddress}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    required
                   />
                 </div>
 
