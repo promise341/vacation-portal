@@ -11,7 +11,7 @@ export async function GET() {
   });
 }
 
-export async function POST(request) {
+export async function POST(request: Request) {
   try {
     console.log('API route called');
     
@@ -39,7 +39,7 @@ export async function POST(request) {
     }
 
     // Validation
-    const errors = [];
+    const errors: string[] = [];
 
     // Check required fields
     if (!name && !firstName) {
@@ -67,7 +67,7 @@ export async function POST(request) {
     }
 
     // Check if Resend is available
-    let resend;
+    let resend: any;
     try {
       const { Resend } = await import('resend');
       resend = new Resend(process.env.RESEND_API_KEY);
@@ -138,7 +138,7 @@ export async function POST(request) {
         },
         { status: 200 }
       );
-    } catch (emailError) {
+    } catch (emailError: any) {
       console.error('Email sending error:', emailError);
       return NextResponse.json(
         { error: 'Failed to send email. Please try again later.', details: emailError.message },
@@ -146,7 +146,7 @@ export async function POST(request) {
       );
     }
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Contact form error:', error);
     return NextResponse.json(
       { error: 'Internal server error. Please try again later.', details: error.message },
