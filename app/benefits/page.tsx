@@ -22,6 +22,7 @@ export default function Benefits() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
+    
     if (type === 'file') {
       const fileInput = e.target as HTMLInputElement;
       setFormData(prev => ({
