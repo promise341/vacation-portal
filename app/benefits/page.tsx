@@ -22,10 +22,18 @@ export default function Benefits() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'file' ? e.target.files?.[0] || null : value
-    }));
+    if (type === 'file') {
+      const fileInput = e.target as HTMLInputElement;
+      setFormData(prev => ({
+        ...prev,
+        [name]: fileInput.files?.[0] || null
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
