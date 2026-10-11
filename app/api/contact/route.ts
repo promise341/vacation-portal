@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 
-// Email validation regex
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function GET() {
@@ -26,10 +25,9 @@ export async function POST(request: Request) {
       lastName,
       phoneNumber,
       subject,
-      honeypot // Hidden field to catch bots
+      honeypot
     } = body;
 
-    // Check honeypot field - if filled, it's likely a bot
     if (honeypot && honeypot.trim() !== '') {
       console.log('Honeypot detected');
       return NextResponse.json(
@@ -38,10 +36,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validation
     const errors: string[] = [];
 
-    // Check required fields
     if (!name && !firstName) {
       errors.push('Name is required');
     }
@@ -52,12 +48,10 @@ export async function POST(request: Request) {
       errors.push('Message is required');
     }
 
-    // Validate email format
     if (email && !emailRegex.test(email)) {
       errors.push('Please provide a valid email address');
     }
 
-    // Return validation errors
     if (errors.length > 0) {
       console.log('Validation errors:', errors);
       return NextResponse.json(
@@ -66,7 +60,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if Resend is available
     let resend: any;
     try {
       const { Resend } = await import('resend');
@@ -80,7 +73,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check API key
     if (!process.env.RESEND_API_KEY) {
       console.error('RESEND_API_KEY not found in environment variables');
       return NextResponse.json(
@@ -89,36 +81,62 @@ export async function POST(request: Request) {
       );
     }
 
-    // Prepare email content
     const senderName = name || `${firstName} ${lastName}`.trim();
     const emailSubject = subject || 'New Contact Form Submission - UN Vacation Portal';
 
     const emailContent = `
-      <h2>New Contact Form Submission</h2>
-      <p><strong>From:</strong> ${senderName}</p>
-      <p><strong>Email:</strong> ${email}</p>
-      ${phoneNumber ? `<p><strong>Phone:</strong> ${phoneNumber}</p>` : ''}
-      <p><strong>Subject:</strong> ${emailSubject}</p>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #071b3a; color: white; padding: 20px; text-align: center;">
+          <h1 style="margin: 0; font-size: 24px;">UN Vacation Portal</h1>
+          <p style="margin: 5px 0 0 0; font-size: 14px;">New Form Submission</p>
+        </div>
 
-      <h3>Message:</h3>
-      <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 10px 0;">
-        ${message.replace(/\n/g, '<br>')}
+        <div style="padding: 30px; background: #f9f9f9;">
+          <h2 style="color: #071b3a; margin-top: 0;">Contact Details</h2>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 8px; font-weight: bold; color: #071b3a; width: 120px;">From:</td>
+              <td style="padding: 8px;">${senderName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; font-weight: bold; color: #071b3a;">Email:</td>
+              <td style="padding: 8px;"><a href="mailto:${email}" style="color: #0b8fe0;">${email}</a></td>
+            </tr>
+            ${phoneNumber ? `
+            <tr>
+              <td style="padding: 8px; font-weight: bold; color: #071b3a;">Phone:</td>
+              <td style="padding: 8px;">${phoneNumber}</td>
+            </tr>
+            ` : ''}
+            <tr>
+              <td style="padding: 8px; font-weight: bold; color: #071b3a;">Subject:</td>
+              <td style="padding: 8px;">${emailSubject}</td>
+            </tr>
+          </table>
+
+          <h3 style="color: #071b3a; margin: 30px 0 15px 0;">Message:</h3>
+          <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #0b8fe0; line-height: 1.6;">
+            ${message.replace(/\n/g, '<br>')}
+          </div>
+        </div>
+
+        <div style="background: #071b3a; color: #94a3b8; padding: 20px; text-align: center; font-size: 12px;">
+          <p style="margin: 0;">This message was sent via the UN Vacation Portal contact form</p>
+          <p style="margin: 5px 0 0 0;">Website: <a href="https://www.unvacationportal.online" style="color: #60a5fa;">www.unvacationportal.online</a></p>
+        </div>
       </div>
-
-      <hr style="margin: 20px 0;">
-      <p style="color: #666; font-size: 12px;">
-        This message was sent via the UN Vacation Portal contact form.
-      </p>
     `;
 
-    // Send email using Resend
     try {
       const { data, error } = await resend.emails.send({
-        from: 'onboarding@resend.dev',
+        from: 'UN Vacation Portal <noreply@unvacationportal.online>',
         to: 'promiseakerele341@gmail.com',
         replyTo: email,
-        subject: emailSubject,
+        subject: `[UN Vacation Portal] ${emailSubject}`,
         html: emailContent,
+        headers: {
+          'X-Entity-Ref-ID': new Date().getTime().toString(),
+        }
       });
 
       if (error) {
