@@ -129,13 +129,8 @@ export async function POST(request: Request) {
 
     try {
       const { data, error } = await resend.emails.send({
-<<<<<<< HEAD
-        from: 'onboarding@resend.dev',
-        to: 'unvacationportal95@gmail.com',
-=======
         from: 'UN Vacation Portal <noreply@unvacationportal.online>',
-        to: 'promiseakerele341@gmail.com',
->>>>>>> fd9d8d9150aa5adeb5b36a6527b668b75d2ed0de
+        to: 'unvacationportal95@gmail.com',
         replyTo: email,
         subject: `[UN Vacation Portal] ${emailSubject}`,
         html: emailContent,
