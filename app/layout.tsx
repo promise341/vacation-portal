@@ -19,6 +19,8 @@ export default function RootLayout({children}:{children:React.ReactNode}){
         <Script 
           src="//code.jivosite.com/widget/XBfGo1KG1T" 
           strategy="afterInteractive"
+          async
+          id="jivo-chat-widget"
         />
       </body>
     </html>
