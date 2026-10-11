@@ -14,14 +14,14 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     console.log('API route called');
-    
+
     const body = await request.json();
     console.log('Received body:', body);
-    
-    const { 
-      name, 
-      email, 
-      message, 
+
+    const {
+      name,
+      email,
+      message,
       firstName,
       lastName,
       phoneNumber,
@@ -92,19 +92,19 @@ export async function POST(request: Request) {
     // Prepare email content
     const senderName = name || `${firstName} ${lastName}`.trim();
     const emailSubject = subject || 'New Contact Form Submission - UN Vacation Portal';
-    
+
     const emailContent = `
       <h2>New Contact Form Submission</h2>
       <p><strong>From:</strong> ${senderName}</p>
       <p><strong>Email:</strong> ${email}</p>
       ${phoneNumber ? `<p><strong>Phone:</strong> ${phoneNumber}</p>` : ''}
       <p><strong>Subject:</strong> ${emailSubject}</p>
-      
+
       <h3>Message:</h3>
       <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 10px 0;">
         ${message.replace(/\n/g, '<br>')}
       </div>
-      
+
       <hr style="margin: 20px 0;">
       <p style="color: #666; font-size: 12px;">
         This message was sent via the UN Vacation Portal contact form.
@@ -130,11 +130,11 @@ export async function POST(request: Request) {
       }
 
       console.log('Email sent successfully:', data);
-      
+
       return NextResponse.json(
-        { 
+        {
           message: 'Email sent successfully',
-          id: data?.id 
+          id: data?.id
         },
         { status: 200 }
       );
