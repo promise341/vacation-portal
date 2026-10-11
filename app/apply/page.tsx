@@ -17,11 +17,11 @@ export default function Apply() {
     additionalDetailsServing: "",
     validIdCard: "",
     additionalMessage: "",
-    honeypot: "" // Hidden spam prevention field
+    honeypot: ""
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<string | null>(null); // 'success', 'error', null
+  const [submitStatus, setSubmitStatus] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -38,12 +38,11 @@ export default function Apply() {
     setSubmitStatus(null);
     setValidationErrors([]);
 
-    // Client-side validation
     const errors = [];
     if (!formData.firstName.trim()) errors.push('First name is required');
     if (!formData.lastName.trim()) errors.push('Last name is required');
     if (!formData.emailAddress.trim()) errors.push('Email address is required');
-    
+
     if (errors.length > 0) {
       setValidationErrors(errors);
       setIsSubmitting(false);
@@ -51,7 +50,6 @@ export default function Apply() {
     }
 
     try {
-      // Prepare email content
       const emailData = {
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -96,16 +94,11 @@ ${formData.additionalMessage}
       try {
         result = await response.json();
       } catch (jsonError) {
-        console.error('Failed to parse JSON response:', jsonError);
         result = { error: 'Invalid response format' };
       }
 
-      console.log('Response status:', response.status);
-      console.log('Response result:', result);
-
       if (response.ok) {
         setSubmitStatus('success');
-        // Clear form on success
         setFormData({
           firstName: "",
           lastName: "",
@@ -127,12 +120,10 @@ ${formData.additionalMessage}
         if (result.details) {
           setValidationErrors(Array.isArray(result.details) ? result.details : [result.error]);
         }
-        console.error('Submission error:', result);
       }
     } catch (error) {
       setSubmitStatus('error');
       setValidationErrors(['Network error. Please check your connection and try again.']);
-      console.error('Network error:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -140,7 +131,6 @@ ${formData.additionalMessage}
 
   return (
     <>
-      {/* Page header */}
       <section className="bg-[#071b3a] text-white py-12 border-b-4 border-[#c9a227]">
         <div className="container">
           <h1 className="text-4xl font-black">Apply for Vacation</h1>
@@ -148,23 +138,20 @@ ${formData.additionalMessage}
         </div>
       </section>
 
-      {/* Form */}
       <section className="bg-white py-16">
         <div className="container max-w-3xl mx-auto">
-          {/* Info Notice */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
             <div className="flex items-start gap-3">
               <Info className="text-blue-600 mt-0.5 flex-shrink-0" size={20} />
               <div>
                 <p className="text-sm text-blue-800">
-                  <strong>Who can apply?</strong> Relatives, family lawyers, family representatives, and common-law 
+                  <strong>Who can apply?</strong> Relatives, family lawyers, family representatives, and common-law
                   partners of serving personnel.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Validation Errors */}
           {validationErrors.length > 0 && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-8">
               <div className="flex items-start gap-3">
@@ -181,7 +168,6 @@ ${formData.additionalMessage}
             </div>
           )}
 
-          {/* Status Messages */}
           {submitStatus === 'success' && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-8">
               <div className="flex items-center gap-3">
@@ -211,7 +197,6 @@ ${formData.additionalMessage}
           )}
 
           <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-lg shadow-sm">
-            {/* Honeypot field - hidden from users */}
             <input
               type="text"
               name="honeypot"
@@ -221,12 +206,12 @@ ${formData.additionalMessage}
               tabIndex={-1}
               autoComplete="off"
             />
-            {/* Personal Information */}
+
             <div className="p-8 border-b border-slate-200">
               <h2 className="text-lg font-bold text-[#071b3a] mb-8 text-center">
                 PERSONAL INFORMATION
               </h2>
-              
+
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
                   <label className="block text-sm font-medium text-[#071b3a] mb-2">
@@ -241,7 +226,7 @@ ${formData.additionalMessage}
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-[#071b3a] mb-2">
                     Last Name <span className="text-red-500">*</span>
@@ -298,12 +283,11 @@ ${formData.additionalMessage}
               </div>
             </div>
 
-            {/* Application Details */}
             <div className="p-8 border-b border-slate-200">
               <h2 className="text-lg font-bold text-[#071b3a] mb-8 text-center">
                 APPLICATION DETAILS
               </h2>
-              
+
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-[#071b3a] mb-2">
@@ -393,12 +377,11 @@ ${formData.additionalMessage}
               </div>
             </div>
 
-            {/* Personnel Information */}
             <div className="p-8 border-b border-slate-200">
               <h2 className="text-lg font-bold text-[#071b3a] mb-8 text-center">
                 PERSONNEL INFORMATION
               </h2>
-              
+
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-[#071b3a] mb-2">
@@ -456,14 +439,13 @@ ${formData.additionalMessage}
               </div>
             </div>
 
-            {/* Submit Button */}
             <div className="p-8 text-center">
               <button
                 type="submit"
                 disabled={isSubmitting}
                 className={`px-8 py-3 rounded font-bold text-white transition-colors ${
-                  isSubmitting 
-                    ? 'bg-gray-400 cursor-not-allowed' 
+                  isSubmitting
+                    ? 'bg-gray-400 cursor-not-allowed'
                     : 'bg-[#0b8fe0] hover:bg-[#0a7fc9]'
                 }`}
               >

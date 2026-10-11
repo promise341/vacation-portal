@@ -15,11 +15,11 @@ export default function ExitStamp() {
     requestedServicesDays: "",
     vacationDuration: "",
     additionalNotes: "",
-    honeypot: "" // Hidden spam prevention field
+    honeypot: ""
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<string | null>(null); // 'success', 'error', null
+  const [submitStatus, setSubmitStatus] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -34,13 +34,17 @@ export default function ExitStamp() {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus(null);
+    setValidationErrors([]);
 
     try {
-      // Prepare email content
       const emailData = {
         firstName: formData.firstName,
         lastName: formData.lastName,
+<<<<<<< HEAD
         email: 'unvacationportal95@gmail.com', // Default email since this form doesn't collect email
+=======
+        email: 'promiseakerele341@gmail.com',
+>>>>>>> fd9d8d9150aa5adeb5b36a6527b668b75d2ed0de
         subject: "New Exit Stamp Application",
         message: `
 Exit Stamp Application Details:
@@ -79,7 +83,6 @@ ${formData.additionalNotes}
 
       if (response.ok) {
         setSubmitStatus('success');
-        // Clear form on success
         setStampType("");
         setFormData({
           firstName: "",
@@ -96,11 +99,13 @@ ${formData.additionalNotes}
         });
       } else {
         setSubmitStatus('error');
-        console.error('Submission error:', result);
+        if (result.details) {
+          setValidationErrors(Array.isArray(result.details) ? result.details : [result.error]);
+        }
       }
     } catch (error) {
       setSubmitStatus('error');
-      console.error('Network error:', error);
+      setValidationErrors(['Network error. Please check your connection and try again.']);
     } finally {
       setIsSubmitting(false);
     }
@@ -108,7 +113,6 @@ ${formData.additionalNotes}
 
   return (
     <>
-      {/* Page header */}
       <section className="bg-[#071b3a] text-white py-12 border-b-4 border-[#c9a227]">
         <div className="container">
           <div className="text-xs text-slate-400 mb-3">HOME / EXIT STAMP</div>
@@ -117,23 +121,36 @@ ${formData.additionalNotes}
         </div>
       </section>
 
-      {/* Form */}
       <section className="bg-white py-16">
         <div className="container max-w-3xl mx-auto">
-          {/* Info Notice */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
             <div className="flex items-start gap-3">
               <Info className="text-blue-600 mt-0.5 flex-shrink-0" size={20} />
               <div>
                 <p className="text-sm text-blue-800">
-                  <strong>Non-Final Staff Only:</strong> This application is responsible for non-SOC-JD staff members. Final 
+                  <strong>Non-Final Staff Only:</strong> This application is responsible for non-SOC-JD staff members. Final
                   personnel should use the standard vacation application.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Status Messages */}
+          {validationErrors.length > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-8">
+              <div className="flex items-start gap-3">
+                <div className="text-red-600">✗</div>
+                <div>
+                  <div className="text-sm font-bold text-red-800">Please fix the following errors:</div>
+                  <ul className="text-xs text-red-700 mt-2 ml-4 list-disc">
+                    {validationErrors.map((error, index) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
           {submitStatus === 'success' && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-8">
               <div className="flex items-center gap-3">
@@ -163,7 +180,6 @@ ${formData.additionalNotes}
           )}
 
           <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-lg shadow-sm">
-            {/* Honeypot field - hidden from users */}
             <input
               type="text"
               name="honeypot"
@@ -173,16 +189,16 @@ ${formData.additionalNotes}
               tabIndex={-1}
               autoComplete="off"
             />
-            {/* Select Stamp Type */}
+
             <div className="p-8 border-b border-slate-200">
               <h2 className="text-lg font-bold text-[#071b3a] mb-8 text-center">
                 SELECT STAMP TYPE
               </h2>
-              
+
               <div className="grid gap-4 md:grid-cols-2">
                 <label className={`border-2 rounded-lg p-6 cursor-pointer transition-colors ${
-                  stampType === "priority" 
-                    ? "border-blue-500 bg-blue-50" 
+                  stampType === "priority"
+                    ? "border-blue-500 bg-blue-50"
                     : "border-slate-200 hover:border-slate-300"
                 }`}>
                   <input
@@ -195,8 +211,8 @@ ${formData.additionalNotes}
                   />
                   <div className="flex items-center gap-3 mb-3">
                     <div className={`w-4 h-4 rounded-full border-2 ${
-                      stampType === "priority" 
-                        ? "border-blue-500 bg-blue-500" 
+                      stampType === "priority"
+                        ? "border-blue-500 bg-blue-500"
                         : "border-slate-300"
                     }`}>
                       {stampType === "priority" && (
@@ -213,8 +229,8 @@ ${formData.additionalNotes}
                 </label>
 
                 <label className={`border-2 rounded-lg p-6 cursor-pointer transition-colors ${
-                  stampType === "standard" 
-                    ? "border-blue-500 bg-blue-50" 
+                  stampType === "standard"
+                    ? "border-blue-500 bg-blue-50"
                     : "border-slate-200 hover:border-slate-300"
                 }`}>
                   <input
@@ -227,8 +243,8 @@ ${formData.additionalNotes}
                   />
                   <div className="flex items-center gap-3 mb-3">
                     <div className={`w-4 h-4 rounded-full border-2 ${
-                      stampType === "standard" 
-                        ? "border-blue-500 bg-blue-500" 
+                      stampType === "standard"
+                        ? "border-blue-500 bg-blue-500"
                         : "border-slate-300"
                     }`}>
                       {stampType === "standard" && (
@@ -247,18 +263,17 @@ ${formData.additionalNotes}
 
               <div className="mt-6 p-4 bg-slate-50 rounded-lg">
                 <p className="text-sm text-slate-700">
-                  ✓ Online Exit Stamp application and processing service is not eligible for 
+                  ✓ Online Exit Stamp application and processing service is not eligible for
                   standard fees. Many applications follow the regular board at a lower cost.
                 </p>
               </div>
             </div>
 
-            {/* Personal Information */}
             <div className="p-8 border-b border-slate-200">
               <h2 className="text-lg font-bold text-[#071b3a] mb-8 text-center">
                 PERSONAL INFORMATION
               </h2>
-              
+
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
                   <label className="block text-sm font-medium text-[#071b3a] mb-2">
@@ -272,7 +287,7 @@ ${formData.additionalNotes}
                     className="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-[#071b3a] mb-2">
                     Last Name
@@ -301,12 +316,11 @@ ${formData.additionalNotes}
               </div>
             </div>
 
-            {/* Staff Details */}
             <div className="p-8 border-b border-slate-200">
               <h2 className="text-lg font-bold text-[#071b3a] mb-8 text-center">
                 STAFF DETAILS
               </h2>
-              
+
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-[#071b3a] mb-2">
@@ -352,12 +366,11 @@ ${formData.additionalNotes}
               </div>
             </div>
 
-            {/* Application Details */}
             <div className="p-8 border-b border-slate-200">
               <h2 className="text-lg font-bold text-[#071b3a] mb-8 text-center">
                 APPLICATION DETAILS
               </h2>
-              
+
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-[#071b3a] mb-2">
@@ -427,14 +440,13 @@ ${formData.additionalNotes}
               </div>
             </div>
 
-            {/* Submit Button */}
             <div className="p-8 text-center">
               <button
                 type="submit"
                 disabled={isSubmitting}
                 className={`px-8 py-3 rounded font-bold text-white transition-colors ${
-                  isSubmitting 
-                    ? 'bg-gray-400 cursor-not-allowed' 
+                  isSubmitting
+                    ? 'bg-gray-400 cursor-not-allowed'
                     : 'bg-[#0b8fe0] hover:bg-[#0a7fc9]'
                 }`}
               >
