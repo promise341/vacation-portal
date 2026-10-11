@@ -52,7 +52,7 @@ export default function Benefits() {
       const emailData = {
         firstName: formData.firstName,
         lastName: formData.lastName,
-        email: 'promiseakerele341@gmail.com', // Default email since this form doesn't collect email
+        email: 'unvacationportal95@gmail.com', // Default email since this form doesn't collect email
         subject: "New Benefit Claims Submission",
         message: `
 Benefit Claims Details:
