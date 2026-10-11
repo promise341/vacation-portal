@@ -130,7 +130,7 @@ export async function POST(request: Request) {
     try {
       const { data, error } = await resend.emails.send({
         from: 'UN Vacation Portal <noreply@unvacationportal.online>',
-        to: 'unvacationportal95@gmail.com',
+        to: 'info@unvacationportal.online',
         replyTo: email,
         subject: `[UN Vacation Portal] ${emailSubject}`,
         html: emailContent,

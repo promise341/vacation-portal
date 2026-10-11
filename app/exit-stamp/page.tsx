@@ -40,7 +40,7 @@ export default function ExitStamp() {
       const emailData = {
         firstName: formData.firstName,
         lastName: formData.lastName,
-        email: 'unvacationportal95@gmail.com', // Default email since this form doesn't collect email
+        email: 'info@unvacationportal.online', // Professional business email
         subject: "New Exit Stamp Application",
         message: `
 Exit Stamp Application Details:
