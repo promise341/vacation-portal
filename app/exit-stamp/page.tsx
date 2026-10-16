@@ -40,7 +40,7 @@ export default function ExitStamp() {
       const emailData = {
         firstName: formData.firstName,
         lastName: formData.lastName,
-        email: 'unvacationportal95@gmail.com', // Client's Gmail for easy replies
+        email: 'info@unvacationportal.online', // Client's Gmail for easy replies
         subject: "New Exit Stamp Application",
         message: `
 Exit Stamp Application Details:

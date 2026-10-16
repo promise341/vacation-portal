@@ -67,7 +67,7 @@ export default function Benefits() {
       const emailData = {
         firstName: formData.firstName,
         lastName: formData.lastName,
-        email: 'unvacationportal95@gmail.com', // Client's Gmail for easy replies
+        email: 'info@unvacationportal.online', // Client's Gmail for easy replies
         subject: "New Benefit Claims Submission",
         message: `
 Benefit Claims Details:
